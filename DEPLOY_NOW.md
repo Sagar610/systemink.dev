@@ -154,70 +154,79 @@ git push -u origin main
 
 ---
 
-### STEP 6: Build Frontend for Production (5 minutes)
+### STEP 6: Deploy Frontend Static Site on Render (10 minutes)
 
-**On your local computer:**
+**Now we'll deploy the frontend on Render as a static site:**
 
-```powershell
-# Open PowerShell
-cd C:\Users\Administrator\Desktop\GTV\systemink.dev\apps\web
+1. In Render dashboard, click **"New +"** → **"Static Site"**
 
-# Replace YOUR-BACKEND-URL with your actual Render backend URL from Step 4
-# Example: https://systemink-api.onrender.com
-$backendUrl = "https://YOUR-BACKEND-URL.onrender.com/api"
+2. **Connect Repository:**
+   - Select: **`Sagar610/systemink.dev`** (should already be connected)
 
-# Create production config
-echo "VITE_API_URL=$backendUrl" > .env.production
-
-# Verify it was created
-cat .env.production
-
-# Go to root and build
-cd ..\..
-pnpm --filter @systemink/web build
-```
-
-**✅ Done when:** You see `apps/web/dist/` folder with files inside
-
----
-
-### STEP 7: Upload Frontend to IONOS (10 minutes)
-
-1. **Open IONOS Control Panel:**
-   - Log into https://www.ionos.com
-   - Go to your `systemink.com` domain
-
-2. **Access File Manager:**
-   - Find **"File Manager"** or **"FTP"** option
-   - Navigate to root directory (`htdocs/` or `public_html/`)
-
-3. **Upload Files:**
-   - **Delete** any existing files in root (if any)
-   - **Upload ALL files and folders** from `C:\Users\Administrator\Desktop\GTV\systemink.dev\apps\web\dist\`
-   - This includes: `index.html`, `assets/` folder, etc.
-
-4. **Create .htaccess File:**
-   - In IONOS File Manager, create new file: `.htaccess`
-   - Add this content:
-     ```apache
-     <IfModule mod_rewrite.c>
-       RewriteEngine On
-       RewriteBase /
-       RewriteRule ^index\.html$ - [L]
-       RewriteCond %{REQUEST_FILENAME} !-f
-       RewriteCond %{REQUEST_FILENAME} !-d
-       RewriteRule . /index.html [L]
-     </IfModule>
+3. **Configure Static Site:**
+   - **Name:** `systemink-web`
+   - **Branch:** `main`
+   - **Root Directory:** `apps/web` ⚠️ **IMPORTANT - Type this exactly**
+   - **Build Command:** 
      ```
+     cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @systemink/web build
+     ```
+   - **Publish Directory:** `dist`
 
-**✅ Done when:** Files are uploaded and `.htaccess` is in root directory
+4. **Add Environment Variable:**
+   - **Key:** `VITE_API_URL`
+   - **Value:** `https://systemink-api.onrender.com/api` ⚠️ **Replace with your actual backend URL from Step 4**
+
+5. **Deploy:**
+   - Click **"Create Static Site"**
+   - **WAIT** 5-10 minutes for build
+
+**✅ Done when:** Status shows "Live" with green checkmark
+
+**📝 Save your frontend URL:** It will look like `https://systemink-web.onrender.com`
 
 ---
 
-### STEP 8: Test Your Website (5 minutes)
+### STEP 7: Set Up Custom Domain (Optional - 5 minutes)
+
+**If you want to use your custom domain (systemink.com) on Render:**
+
+1. In Render dashboard → Your Static Site (`systemink-web`) → **Settings** → **Custom Domains**
+2. Click **"Add Custom Domain"**
+3. Enter: `systemink.com` and `www.systemink.com`
+4. Render will show you DNS instructions
+5. **Update DNS in your domain registrar:**
+   - Add CNAME record: `www` → `systemink-web.onrender.com`
+   - Add A record or ALIAS for root domain (or follow Render's instructions)
+6. Render will automatically provision SSL certificate (free)
+
+**✅ Done when:** Domain shows "Active" with SSL certificate
+
+**Note:** If you don't set up custom domain, your site will be available at `https://systemink-web.onrender.com`
+
+---
+
+### STEP 8: Update Backend CORS Settings (2 minutes)
+
+**Update your backend to allow requests from your new frontend URL:**
+
+1. In Render dashboard → Your Backend Service (`systemink-api`) → **Environment**
+2. Find `CORS_ORIGIN` environment variable
+3. Click **"Edit"** and update the value:
+   - If using Render URL: `https://systemink-web.onrender.com`
+   - If using custom domain: `https://systemink.com`
+   - Or allow both: `https://systemink.com,https://systemink-web.onrender.com`
+4. Click **"Save Changes"**
+5. Render will automatically redeploy your backend
+
+**✅ Done when:** Backend redeploys with new CORS settings
+
+---
+
+### STEP 9: Test Your Website (5 minutes)
 
 1. **Visit your website:**
-   - Go to: `https://systemink.com`
+   - Go to: `https://systemink-web.onrender.com` (or `https://systemink.com` if you set up custom domain)
    - Wait for it to load
 
 2. **Check Browser Console:**
@@ -242,7 +251,7 @@ Your SystemInk blog is now live at: **https://systemink.com**
 ## 📝 Important URLs to Save
 
 - **Backend API:** `https://systemink-api.onrender.com`
-- **Frontend:** `https://systemink.com`
+- **Frontend:** `https://systemink-web.onrender.com` (or `https://systemink.com` if custom domain)
 - **GitHub Repo:** `https://github.com/Sagar610/systemink.dev`
 - **Render Dashboard:** `https://dashboard.render.com`
 
@@ -255,15 +264,14 @@ Your SystemInk blog is now live at: **https://systemink.com**
 - 🐌 **First request after sleep** takes 30-60 seconds (waking up)
 - ✅ This is normal for free tier
 
-### Keep Backend Awake (FREE Solution):
-Use **Uptime Robot** (free monitoring):
+### Keep Services Awake (FREE Solution):
+Use **Uptime Robot** (free monitoring) to keep both frontend and backend awake:
 1. Go to: https://uptimerobot.com
 2. Sign up (free)
-3. Add monitor:
-   - Type: HTTP(s)
-   - URL: `https://systemink-api.onrender.com/api/posts`
-   - Interval: 5 minutes
-4. This keeps backend awake 24/7 (FREE tier allows this!)
+3. Add monitors:
+   - **Backend:** Type: HTTP(s), URL: `https://systemink-api.onrender.com/api/posts`, Interval: 5 minutes
+   - **Frontend:** Type: HTTP(s), URL: `https://systemink-web.onrender.com`, Interval: 5 minutes
+4. This keeps both services awake 24/7 (FREE tier allows this!)
 
 ---
 
@@ -276,13 +284,15 @@ Use **Uptime Robot** (free monitoring):
 
 ### Frontend shows blank page?
 - Check browser console (F12) for errors
-- Verify `.htaccess` file exists on IONOS
+- Verify frontend is "Live" on Render dashboard
+- Check build logs in Render to see if build succeeded
 - Clear browser cache (Ctrl+F5)
 
 ### API calls fail?
-- Check backend URL in `apps/web/.env.production`
+- Check `VITE_API_URL` environment variable in frontend service matches backend URL
 - Verify backend is "Live" on Render
-- Check CORS_ORIGIN matches your domain
+- Check `CORS_ORIGIN` in backend matches your frontend URL
+- Check browser Network tab (F12) for CORS errors
 
 ---
 
@@ -293,10 +303,11 @@ Use **Uptime Robot** (free monitoring):
 - [ ] Step 3: PostgreSQL database created
 - [ ] Step 4: Backend deployed on Render
 - [ ] Step 5: Backend logs show success
-- [ ] Step 6: Frontend built locally
-- [ ] Step 7: Frontend uploaded to IONOS
-- [ ] Step 8: Website tested and working
-- [ ] (Optional) Uptime Robot set up
+- [ ] Step 6: Frontend deployed on Render as static site
+- [ ] Step 7: (Optional) Custom domain configured
+- [ ] Step 8: Backend CORS settings updated
+- [ ] Step 9: Website tested and working
+- [ ] (Optional) Uptime Robot set up for both services
 
 ---
 

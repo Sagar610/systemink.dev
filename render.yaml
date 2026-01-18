@@ -1,4 +1,5 @@
 services:
+  # Backend API Service
   - type: web
     name: systemink-api
     env: node
@@ -10,6 +11,19 @@ services:
         value: production
       - key: PORT
         value: 3000
+    plan: free
+
+  # Frontend Static Site
+  - type: web
+    name: systemink-web
+    env: static
+    rootDir: apps/web
+    buildCommand: cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @systemink/web build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://systemink-api.onrender.com/api
+        sync: false
     plan: free
 
 databases:
