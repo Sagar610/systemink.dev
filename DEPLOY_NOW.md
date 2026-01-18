@@ -104,7 +104,7 @@ git push -u origin main
      ```
    - **Start Command:**
      ```
-     cd ../.. && pnpm --filter @systemink/api start:prod
+     cd ../.. && pnpm --filter @systemink/api exec node dist/main.js
      ```
    - **Instance Type:** Select **"Free"** ⭐
 
