@@ -5,7 +5,7 @@ services:
     env: node
     rootDir: .
     buildCommand: pnpm install && pnpm --filter @systemink/shared build && cd apps/api && pnpm db:generate && cd ../.. && pnpm --filter @systemink/api build
-    startCommand: node apps/api/dist/main.js
+    startCommand: NODE_PATH=./node_modules:./apps/api/node_modules node apps/api/dist/main.js
     envVars:
       - key: NODE_ENV
         value: production
