@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Clean black and white professional theme */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+    /* Primary: Pure black */
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+    /* Secondary: Neutral gray */
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 20%;
+    /* Muted: Light gray */
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    /* Accent: Neutral gray */
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    /* Border: Light gray */
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    /* Ring: Black for focus */
+    --ring: 0 0% 0%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Dark mode: Clean black and white */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 100%;
+    /* Primary: White */
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+    /* Secondary: Dark gray */
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 100%;
+    /* Muted: Dark gray */
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+    /* Accent: Dark gray */
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 61%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Reading content styles */
+.prose {
+  @apply max-w-3xl mx-auto;
+}
+
+.prose h1 {
+  @apply text-4xl font-bold mt-8 mb-4;
+}
+
+.prose h2 {
+  @apply text-3xl font-semibold mt-6 mb-3;
+}
+
+.prose h3 {
+  @apply text-2xl font-semibold mt-5 mb-2;
+}
+
+.prose h4 {
+  @apply text-xl font-semibold mt-4 mb-2;
+}
+
+.prose p {
+  @apply mb-4 leading-7;
+}
+
+.prose ul,
+.prose ol {
+  @apply mb-4 ml-6;
+}
+
+.prose li {
+  @apply mb-2;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-border pl-4 italic my-4 bg-muted rounded-r-lg py-2;
+}
+
+.prose code {
+  @apply bg-muted text-foreground px-1.5 py-0.5 rounded text-sm font-mono;
+}
+
+.prose pre {
+  @apply bg-muted p-4 rounded-lg overflow-x-auto my-4 border border-border;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0 text-foreground;
+}
+
+.prose a {
+  @apply text-foreground underline decoration-border hover:decoration-foreground transition-colors;
+}
+
+.prose img {
+  @apply rounded-lg my-4;
+}
+
+.prose table {
+  @apply w-full border-collapse my-4;
+}
+
+.prose th,
+.prose td {
+  @apply border border-border p-2;
+}
+
+.prose th {
+  @apply bg-muted font-semibold;
+}
+
+/* Enhanced UI Styles */
+.card-hover {
+  @apply transition-all duration-200 hover:shadow-lg hover:border-border;
+}
+
+.status-draft {
+  @apply bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200;
+}
+
+.status-published {
+  @apply bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200;
+}
+
+.status-scheduled {
+  @apply bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200;
+}

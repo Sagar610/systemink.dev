@@ -1,0 +1,27 @@
+{
+  "name": "systemink",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A production-ready multi-author blogging platform",
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter @systemink/api dev\" \"pnpm --filter @systemink/web dev\"",
+    "build": "pnpm --filter @systemink/shared build && pnpm --filter @systemink/api build && pnpm --filter @systemink/web build",
+    "test": "pnpm --filter @systemink/api test",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "db:generate": "pnpm --filter @systemink/api db:generate",
+    "db:migrate": "pnpm --filter @systemink/api db:migrate",
+    "db:seed": "pnpm --filter @systemink/api db:seed",
+    "db:studio": "pnpm --filter @systemink/api db:studio"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}
