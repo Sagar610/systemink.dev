@@ -3,9 +3,9 @@ services:
   - type: web
     name: systemink-api
     env: node
-    rootDir: apps/api
-    buildCommand: cd ../.. && pnpm install && pnpm --filter @systemink/shared build && cd apps/api && pnpm db:generate && cd ../.. && pnpm --filter @systemink/api build
-    startCommand: cd ../.. && pnpm --filter @systemink/api exec node dist/main.js
+    rootDir: .
+    buildCommand: pnpm install && pnpm --filter @systemink/shared build && cd apps/api && pnpm db:generate && cd ../.. && pnpm --filter @systemink/api build
+    startCommand: node apps/api/dist/main.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -17,9 +17,9 @@ services:
   - type: web
     name: systemink-web
     env: static
-    rootDir: apps/web
-    buildCommand: cd ../.. && pnpm install && pnpm --filter @systemink/web build
-    staticPublishPath: dist
+    rootDir: .
+    buildCommand: pnpm install && pnpm --filter @systemink/web build
+    staticPublishPath: apps/web/dist
     envVars:
       - key: VITE_API_URL
         value: https://systemink-api.onrender.com/api
