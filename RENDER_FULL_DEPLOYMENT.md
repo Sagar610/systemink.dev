@@ -53,14 +53,14 @@ All detailed steps are in **`DEPLOY_NOW.md`** - follow that guide step by step.
 ### Frontend Static Site:
 - **Type:** Static Site (FREE)
 - **Root Directory:** `apps/web`
-- **Build Command:** `cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @systemink/web build`
+- **Build Command:** `cd ../.. && pnpm install && pnpm --filter @systemink/web build`
 - **Publish Directory:** `dist`
 - **Environment Variable:** `VITE_API_URL` = your backend URL
 
 ### Backend Web Service:
 - **Type:** Web Service (FREE)
 - **Root Directory:** `apps/api`
-- **Build Command:** `cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @systemink/api build`
+- **Build Command:** `cd ../.. && pnpm install && pnpm --filter @systemink/api build`
 - **Start Command:** `cd ../.. && node apps/api/dist/main.js`
 - **Environment Variables:** See `DEPLOY_NOW.md` Step 4
 
