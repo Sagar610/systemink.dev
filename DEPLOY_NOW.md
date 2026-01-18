@@ -100,7 +100,7 @@ git push -u origin main
    - **Runtime:** `Node`
    - **Build Command:** 
      ```
-     cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @systemink/api build
+     cd ../.. && pnpm install && pnpm --filter @systemink/api build
      ```
    - **Start Command:**
      ```
@@ -169,7 +169,7 @@ git push -u origin main
    - **Root Directory:** `apps/web` ⚠️ **IMPORTANT - Type this exactly**
    - **Build Command:** 
      ```
-     cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @systemink/web build
+     cd ../.. && pnpm install && pnpm --filter @systemink/web build
      ```
    - **Publish Directory:** `dist`
 
