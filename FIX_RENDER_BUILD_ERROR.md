@@ -30,12 +30,14 @@ cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @systemink/api build
 
 **CHANGE TO (correct - fixed):**
 ```
-cd ../.. && pnpm install && pnpm --filter @systemink/api build
+cd ../.. && pnpm install && pnpm --filter @systemink/shared build && cd apps/api && pnpm db:generate && cd ../.. && pnpm --filter @systemink/api build
 ```
 
 **What to change:**
 - Remove `--frozen-lockfile` from the command
-- Keep everything else the same
+- Add shared package build: `pnpm --filter @systemink/shared build`
+- Add Prisma Client generation: `cd apps/api && pnpm db:generate && cd ../..`
+- This ensures Prisma types are available before TypeScript compilation
 
 ### Step 5: Save and Deploy
 1. Click **"Save Changes"** button at the bottom
