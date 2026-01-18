@@ -100,7 +100,7 @@ git push -u origin main
    - **Runtime:** `Node`
    - **Build Command:** 
      ```
-     cd ../.. && pnpm install && pnpm --filter @systemink/api build
+     cd ../.. && pnpm install && pnpm --filter @systemink/shared build && cd apps/api && pnpm db:generate && cd ../.. && pnpm --filter @systemink/api build
      ```
    - **Start Command:**
      ```

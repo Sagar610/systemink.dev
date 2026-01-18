@@ -48,7 +48,7 @@ cd ../.. && pnpm install && pnpm --filter @systemink/api build
 
 ### Backend Build Command (for `systemink-api`):
 ```
-cd ../.. && pnpm install && pnpm --filter @systemink/api build
+cd ../.. && pnpm install && pnpm --filter @systemink/shared build && cd apps/api && pnpm db:generate && cd ../.. && pnpm --filter @systemink/api build
 ```
 
 ### Frontend Build Command (for `systemink-web` - if you created it):
