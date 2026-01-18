@@ -96,15 +96,15 @@ git push -u origin main
    - **Name:** `systemink-api`
    - **Region:** Same region as database (important!)
    - **Branch:** `main`
-   - **Root Directory:** `apps/api` ⚠️ **VERY IMPORTANT - Type this exactly**
+   - **Root Directory:** `.` ⚠️ **IMPORTANT - Use repo root (just a dot)**
    - **Runtime:** `Node`
    - **Build Command:** 
      ```
-     cd ../.. && pnpm install && pnpm --filter @systemink/shared build && cd apps/api && pnpm db:generate && cd ../.. && pnpm --filter @systemink/api build
+     pnpm install && pnpm --filter @systemink/shared build && cd apps/api && pnpm db:generate && cd ../.. && pnpm --filter @systemink/api build
      ```
    - **Start Command:**
      ```
-     cd ../.. && pnpm --filter @systemink/api exec node dist/main.js
+     node apps/api/dist/main.js
      ```
    - **Instance Type:** Select **"Free"** ⭐
 
