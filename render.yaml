@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: systemink-api
+    env: node
+    rootDir: apps/api
+    buildCommand: cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @systemink/api build
+    startCommand: cd ../.. && node apps/api/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+    plan: free
+
+databases:
+  - name: systemink-db
+    plan: free

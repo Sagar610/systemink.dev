@@ -100,7 +100,7 @@ git push -u origin main
    - **Runtime:** `Node`
    - **Build Command:** 
      ```
-     cd ../.. && pnpm install && pnpm --filter @systemink/api build
+     cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @systemink/api build
      ```
    - **Start Command:**
      ```
