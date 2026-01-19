@@ -13,7 +13,7 @@ services:
     region: oregon
     plan: starter
     buildCommand: npm install -g pnpm@8.15.0 && pnpm install && pnpm --filter @systemink/shared build && cd apps/api && npx prisma generate && cd ../.. && pnpm --filter @systemink/api build && cd apps/api && npx prisma migrate deploy && cd ../..
-    startCommand: cd apps/api && pnpm start:prod
+    startCommand: cd apps/api && pnpm exec node dist/main
     envVars:
       - key: NODE_ENV
         value: production

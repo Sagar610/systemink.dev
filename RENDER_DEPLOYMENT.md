@@ -68,7 +68,7 @@ git push -u origin main
    *Note: Migrations run automatically during build - no Shell access needed!*
    - **Start Command**: 
      ```bash
-     cd apps/api && pnpm start:prod
+     cd apps/api && pnpm exec node dist/main
      ```
    - **Plan**: `Starter` (Free tier)
 
