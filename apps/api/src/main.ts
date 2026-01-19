@@ -11,10 +11,12 @@ import { execSync } from 'child_process';
 async function runMigrations() {
   try {
     console.log('🔄 Running database migrations...');
+    // Run from apps/api directory where prisma schema is located
+    const apiDir = join(__dirname, '..');
     execSync('npx prisma migrate deploy', {
       stdio: 'inherit',
-      cwd: join(__dirname, '..'),
-      env: process.env,
+      cwd: apiDir,
+      env: { ...process.env, NODE_PATH: join(apiDir, '../../node_modules') },
     });
     console.log('✅ Migrations completed successfully');
   } catch (error) {
