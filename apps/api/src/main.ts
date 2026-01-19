@@ -16,7 +16,7 @@ async function runMigrations() {
     execSync('npx prisma migrate deploy', {
       stdio: 'inherit',
       cwd: apiDir,
-      env: { ...process.env, NODE_PATH: join(apiDir, '../../node_modules') },
+      env: process.env,
     });
     console.log('✅ Migrations completed successfully');
   } catch (error) {

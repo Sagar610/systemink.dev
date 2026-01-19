@@ -68,7 +68,7 @@ git push -u origin main
    *Note: Migrations run automatically during build - no Shell access needed!*
    - **Start Command**: 
      ```bash
-     pnpm --filter @systemink/api exec node dist/main
+     cd apps/api && NODE_PATH=../../node_modules:$NODE_PATH node dist/main
      ```
    - **Plan**: `Starter` (Free tier)
 
