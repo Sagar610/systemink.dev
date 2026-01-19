@@ -36,4 +36,28 @@ export class FeedController {
   health() {
     return { status: 'ok', timestamp: new Date().toISOString() };
   }
+
+  @Get()
+  @Public()
+  root() {
+    return {
+      message: 'SystemInk API',
+      version: '1.0.0',
+      endpoints: {
+        health: '/api/health',
+        auth: '/api/auth',
+        posts: '/api/posts',
+        tags: '/api/tags',
+        users: '/api/users',
+        comments: '/api/posts/:postId/comments',
+        uploads: '/api/uploads',
+        feed: {
+          rss: '/api/rss.xml',
+          sitemap: '/api/sitemap.xml',
+          robots: '/api/robots.txt',
+        },
+      },
+      documentation: 'Visit /api/health to check API status',
+    };
+  }
 }
