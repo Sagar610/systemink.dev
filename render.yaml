@@ -3,8 +3,8 @@ services:
   - type: pg
     name: systemink-database
     plan: starter
-    databaseName: systemink
-    user: systemink_user
+    databaseName: systemink_zjut
+    user: systemink_zjut_user
 
   # Backend API Service
   - type: web
