@@ -19,8 +19,9 @@
 - Connect GitHub repo
 - **Build Command**:
   ```
-  npm install -g pnpm@8.15.0 && pnpm install && pnpm --filter @systemink/shared build && pnpm --filter @systemink/api build
+  npm install -g pnpm@8.15.0 && pnpm install && pnpm --filter @systemink/shared build && cd apps/api && npx prisma generate && cd ../.. && pnpm --filter @systemink/api build && cd apps/api && npx prisma migrate deploy && cd ../..
   ```
+  *Migrations run automatically - no Shell needed!*
 - **Start Command**:
   ```
   cd apps/api && pnpm start:prod
@@ -32,15 +33,12 @@
   - `SITE_URL` = `https://systemink-web.onrender.com` (update after frontend deploy)
   - Plus others from `ENVIRONMENT_VARIABLES.md`
 
-### 4. Run Migrations
-- API Service → Shell tab
-- Run:
-  ```bash
-  cd apps/api
-  pnpm prisma generate
-  pnpm prisma migrate deploy
-  pnpm db:seed
-  ```
+### 4. Migrations (Automatic!)
+✅ **Migrations run automatically during build and on startup!**
+- No Shell access needed
+- Migrations run after build completes
+- Also run on server startup as backup
+- See `MIGRATIONS_WITHOUT_SHELL.md` for details
 
 ### 5. Deploy Frontend
 - New → Static Site

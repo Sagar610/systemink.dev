@@ -1,4 +1,5 @@
-const API_URL = '/api';
+// Use environment variable if available (for production), otherwise use relative path (for same-domain)
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export class ApiError extends Error {
   constructor(

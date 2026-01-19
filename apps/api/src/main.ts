@@ -6,8 +6,29 @@ import { AppModule } from './app.module';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as express from 'express';
+import { execSync } from 'child_process';
+
+async function runMigrations() {
+  try {
+    console.log('🔄 Running database migrations...');
+    execSync('npx prisma migrate deploy', {
+      stdio: 'inherit',
+      cwd: join(__dirname, '..'),
+      env: process.env,
+    });
+    console.log('✅ Migrations completed successfully');
+  } catch (error) {
+    console.error('❌ Migration failed:', error);
+    console.warn('⚠️  Continuing with server startup...');
+  }
+}
 
 async function bootstrap() {
+  // Run migrations on startup (for Render free tier without Shell access)
+  if (process.env.DATABASE_URL && process.env.NODE_ENV === 'production') {
+    await runMigrations();
+  }
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
 

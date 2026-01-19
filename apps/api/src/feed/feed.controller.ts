@@ -30,4 +30,10 @@ export class FeedController {
     res.setHeader('Content-Type', 'text/plain');
     res.send(txt);
   }
+
+  @Get('health')
+  @Public()
+  health() {
+    return { status: 'ok', timestamp: new Date().toISOString() };
+  }
 }

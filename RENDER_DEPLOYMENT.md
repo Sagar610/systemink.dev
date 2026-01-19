@@ -38,13 +38,15 @@ git push -u origin main
 2. Click **"New +"** → **"PostgreSQL"**
 3. Configure:
    - **Name**: `systemink-database`
-   - **Database**: `systemink`
-   - **User**: `systemink_user`
-   - **Region**: Choose closest to you (e.g., `Oregon`)
+   - **Database**: `systemink_zjut` (or your preferred name)
+   - **User**: `systemink_zjut_user` (or your preferred username)
+   - **Region**: Choose closest to you (e.g., `Frankfurt`, `Oregon`)
    - **Plan**: `Starter` (Free tier)
 4. Click **"Create Database"**
 5. **IMPORTANT**: Wait for the database to be fully created (green status)
 6. Copy the **Internal Database URL** (you'll need this later)
+   - Format: `postgresql://username:password@host/database`
+   - **CRITICAL**: Use the Internal URL, not External!
 
 ### Step 3: Deploy Backend API Service
 
@@ -61,8 +63,9 @@ git push -u origin main
    - **Environment**: `Node`
    - **Build Command**: 
      ```bash
-     npm install -g pnpm@8.15.0 && pnpm install && pnpm --filter @systemink/shared build && pnpm --filter @systemink/api build
+     npm install -g pnpm@8.15.0 && pnpm install && pnpm --filter @systemink/shared build && cd apps/api && npx prisma generate && cd ../.. && pnpm --filter @systemink/api build && cd apps/api && npx prisma migrate deploy && cd ../..
      ```
+   *Note: Migrations run automatically during build - no Shell access needed!*
    - **Start Command**: 
      ```bash
      cd apps/api && pnpm start:prod
@@ -82,8 +85,9 @@ git push -u origin main
    ```
    
    ```
-   DATABASE_URL = [Paste the Internal Database URL from Step 2]
+   DATABASE_URL = postgresql://systemink_zjut_user:EXHNvqC5tfZX217AcAQvAADKZfswbkge@dpg-d5n0rot6ubrc73ahk7r0-a/systemink_zjut
    ```
+   *Replace with YOUR Internal Database URL from Step 2*
    
    ```
    JWT_SECRET = [Generate a long random string - at least 32 characters]
@@ -121,30 +125,32 @@ git push -u origin main
 7. **Check the logs** - Look for any errors
 8. Once deployed, note your API URL: `https://systemink-api.onrender.com`
 
-### Step 4: Run Database Migrations
+### Step 4: Database Migrations (Automatic)
 
-After the API is deployed, you need to run Prisma migrations:
+**Good News!** Migrations now run automatically:
+- ✅ During build: Migrations run after the build completes
+- ✅ On startup: Migrations run automatically when the server starts (as a backup)
 
-1. Go to your API service in Render Dashboard
-2. Click on **"Shell"** tab
-3. Run these commands one by one:
-   ```bash
-   cd apps/api
-   pnpm prisma generate
-   pnpm prisma migrate deploy
-   ```
-4. If migrations succeed, you'll see "All migrations have been successfully applied"
+**No Shell access needed!** The migrations will run automatically.
 
-### Step 5: Seed the Database (Optional but Recommended)
+If you want to seed the database with sample data, you have two options:
 
-In the same Shell, run:
-```bash
-pnpm db:seed
-```
+**Option 1: Run migrations locally and push schema**
+1. On your local machine, connect to your Render database using the External URL
+2. Run: `pnpm db:migrate` (this creates migration files)
+3. Commit and push the migration files
+4. On next deploy, migrations will run automatically
 
-This creates:
-- Admin user: `admin@systemink.dev` / `password123`
-- Sample authors and posts
+**Option 2: Use Prisma db push (simpler, but doesn't track migrations)**
+1. On your local machine, set `DATABASE_URL` to your Render External URL
+2. Run: `cd apps/api && npx prisma db push`
+3. This syncs your schema directly to the database
+
+**To seed the database:**
+Since Shell access is paid, you can:
+1. Create a temporary admin endpoint (for one-time use)
+2. Or use Prisma Studio locally connected to Render database
+3. Or manually insert data using SQL
 
 ### Step 6: Update CORS_ORIGIN and SITE_URL
 
@@ -236,17 +242,31 @@ npm install -g pnpm@8.15.0 && pnpm install && pnpm --filter @systemink/shared bu
 - Make sure API service is running (check status in dashboard)
 - Check API logs for errors
 
-### Issue 5: Prisma Migration Errors
+### Issue 5: Prisma Client Not Generated / TypeScript Errors for Role, PostWhereInput
+
+**Symptoms**: Build fails with errors like "Module '@prisma/client' has no exported member 'Role'"
+
+**Solutions**:
+- Make sure the build command includes `npx prisma generate` BEFORE the build step
+- The correct build command should be:
+  ```bash
+  npm install -g pnpm@8.15.0 && pnpm install && pnpm --filter @systemink/shared build && cd apps/api && npx prisma generate && cd ../.. && pnpm --filter @systemink/api build
+  ```
+- Ensure you're in the `apps/api` directory when running `prisma generate`
+- The Prisma schema must be at `apps/api/prisma/schema.prisma`
+- After generating, verify `node_modules/.prisma/client` exists in `apps/api`
+
+### Issue 6: Prisma Migration Errors
 
 **Symptoms**: "Migration failed" or "Schema drift detected"
 
 **Solutions**:
-- Make sure you ran `pnpm prisma generate` first
+- Make sure you ran `npx prisma generate` first
 - Use `pnpm prisma migrate deploy` (not `migrate dev`)
 - Check database connection string is correct
 - If stuck, try: `pnpm prisma db push` (but this doesn't track migrations)
 
-### Issue 6: Images Not Loading
+### Issue 7: Images Not Loading
 
 **Symptoms**: Uploaded images show broken links
 
@@ -256,7 +276,7 @@ npm install -g pnpm@8.15.0 && pnpm install && pnpm --filter @systemink/shared bu
 - Check file permissions
 - Note: On free tier, uploaded files may be lost on redeploy (consider using S3/Cloudinary for production)
 
-### Issue 7: Service Goes to Sleep (Free Tier)
+### Issue 8: Service Goes to Sleep (Free Tier)
 
 **Symptoms**: First request after inactivity is slow (30+ seconds)
 
