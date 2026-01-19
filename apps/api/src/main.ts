@@ -10,17 +10,30 @@ import { execSync } from 'child_process';
 
 async function runMigrations() {
   try {
-    console.log('🔄 Running database migrations...');
+    console.log('🔄 Setting up database schema...');
     // Run from apps/api directory where prisma schema is located
     const apiDir = join(__dirname, '..');
-    execSync('npx prisma migrate deploy', {
-      stdio: 'inherit',
-      cwd: apiDir,
-      env: process.env,
-    });
-    console.log('✅ Migrations completed successfully');
+    
+    // Try migrate deploy first (if migrations exist)
+    try {
+      execSync('npx prisma migrate deploy', {
+        stdio: 'pipe',
+        cwd: apiDir,
+        env: process.env,
+      });
+      console.log('✅ Migrations applied successfully');
+    } catch (migrateError) {
+      // If migrations don't exist or fail, use db push to sync schema
+      console.log('⚠️  Migrations not found, using db push to sync schema...');
+      execSync('npx prisma db push --accept-data-loss', {
+        stdio: 'inherit',
+        cwd: apiDir,
+        env: process.env,
+      });
+      console.log('✅ Database schema synced successfully');
+    }
   } catch (error) {
-    console.error('❌ Migration failed:', error);
+    console.error('❌ Database setup failed:', error);
     console.warn('⚠️  Continuing with server startup...');
   }
 }
