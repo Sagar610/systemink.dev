@@ -12,8 +12,8 @@ services:
     env: node
     region: oregon
     plan: starter
-    buildCommand: npm install -g pnpm@8.15.0 && pnpm install && pnpm --filter @systemink/shared build && cd apps/api && npx prisma generate && cd ../.. && pnpm --filter @systemink/api build && cd apps/api && npx prisma migrate deploy && cd ../..
-    startCommand: cd apps/api && NODE_PATH=../../node_modules:$NODE_PATH node dist/main
+    buildCommand: npm install -g pnpm@8.15.0 && pnpm install && pnpm --filter @systemink/shared build && cd apps/api && npx prisma generate && cd ../.. && pnpm --filter @systemink/api build && cd apps/api && npx prisma migrate deploy && cd ../.. && cd apps/api && pnpm deploy --filter @systemink/api --prod --no-frozen-lockfile
+    startCommand: cd apps/api && node dist/main
     envVars:
       - key: NODE_ENV
         value: production
