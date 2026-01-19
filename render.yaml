@@ -1,31 +1,54 @@
 services:
+  # PostgreSQL Database
+  - type: pg
+    name: systemink-database
+    plan: starter
+    databaseName: systemink
+    user: systemink_user
+
   # Backend API Service
   - type: web
     name: systemink-api
     env: node
-    rootDir: .
-    buildCommand: pnpm install && pnpm --filter @systemink/shared build && cd apps/api && pnpm db:generate && cd ../.. && pnpm --filter @systemink/api build
-    startCommand: pnpm --filter @systemink/api run start:prod
+    region: oregon
+    plan: starter
+    buildCommand: npm install -g pnpm@8.15.0 && pnpm install && pnpm --filter @systemink/shared build && pnpm --filter @systemink/api build
+    startCommand: cd apps/api && pnpm start:prod
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 3000
-    plan: free
+      - key: DATABASE_URL
+        fromDatabase:
+          name: systemink-database
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: CORS_ORIGIN
+        sync: false  # Set this manually to your frontend URL
+      - key: UPLOAD_DIR
+        value: ./uploads
+      - key: MAX_FILE_SIZE
+        value: 52428800
+      - key: SITE_URL
+        sync: false  # Set this manually to your frontend URL
+    healthCheckPath: /api/health
+    autoDeploy: true
 
-  # Frontend Static Site
+  # Frontend Web Service
   - type: web
     name: systemink-web
     env: static
-    rootDir: .
-    buildCommand: pnpm install && pnpm --filter @systemink/web build
+    region: oregon
+    plan: starter
+    buildCommand: npm install -g pnpm@8.15.0 && pnpm install && pnpm --filter @systemink/shared build && pnpm --filter @systemink/web build
     staticPublishPath: apps/web/dist
     envVars:
       - key: VITE_API_URL
-        value: https://systemink-api.onrender.com/api
-        sync: false
-    plan: free
-
-databases:
-  - name: systemink-db
-    plan: free
+        sync: false  # Set this manually to your API service URL (e.g., https://systemink-api.onrender.com/api)
+    autoDeploy: true
