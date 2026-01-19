@@ -78,8 +78,8 @@ async function bootstrap() {
   const uploadDir = configService.get('UPLOAD_DIR', './uploads');
   app.use('/uploads', express.static(join(process.cwd(), uploadDir)));
 
-  // Root route handler (before API prefix)
-  app.get('/', (req, res) => {
+  // Root route handler (before API prefix) - use Express instance
+  app.getHttpAdapter().get('/', (req: express.Request, res: express.Response) => {
     res.json({
       message: 'SystemInk API',
       version: '1.0.0',
