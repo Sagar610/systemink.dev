@@ -32,7 +32,7 @@ export class TagsService {
       },
     });
 
-    return tags.map((tag) => ({
+    return tags.map((tag: any) => ({
       id: tag.id,
       name: tag.name,
       slug: tag.slug,

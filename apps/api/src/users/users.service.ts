@@ -88,7 +88,7 @@ export class UsersService {
     ]);
 
     return {
-      data: users.map(u => ({
+      data: users.map((u: any) => ({
         ...u,
         postCount: u._count.posts,
       })),
@@ -148,7 +148,7 @@ export class UsersService {
 
     // Check follow status for each user if current user is logged in
     const usersWithFollowStatus = await Promise.all(
-      users.map(async (u) => {
+      users.map(async (u: any) => {
         let isFollowing = false;
         if (currentUserId && currentUserId !== u.id) {
           const follow = await this.prisma.follow.findUnique({

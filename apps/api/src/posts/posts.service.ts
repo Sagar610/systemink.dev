@@ -698,7 +698,7 @@ export class PostsService {
         });
 
         const tagsByPostId = postTags.reduce(
-          (acc, pt) => {
+          (acc, pt: any) => {
             if (!acc[pt.postId]) acc[pt.postId] = [];
             acc[pt.postId].push(pt.tag);
             return acc;
@@ -706,7 +706,7 @@ export class PostsService {
           {} as Record<string, any[]>,
         );
 
-        const data = posts.map((p) => ({
+        const data = posts.map((p: any) => ({
           id: p.id,
           title: p.title,
           slug: p.slug,
@@ -763,7 +763,7 @@ export class PostsService {
     ]);
 
     return {
-      data: fallbackPosts.map((p) => this.transformPost(p)),
+      data: fallbackPosts.map((p: any) => this.transformPost(p)),
       meta: {
         total: fallbackTotal,
         page,
