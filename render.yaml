@@ -43,12 +43,14 @@ services:
   # Frontend Web Service
   - type: web
     name: systemink-web
-    env: static
+    env: node
     region: oregon
     plan: starter
     buildCommand: npm install -g pnpm@8.15.0 && pnpm install && pnpm --filter @systemink/shared build && pnpm --filter @systemink/web build
-    staticPublishPath: apps/web/dist
+    startCommand: cd apps/web && pnpm exec node server.js
     envVars:
+      - key: PORT
+        value: 5173
       - key: VITE_API_URL
-        sync: false  # Set this manually to your API service URL (e.g., https://systemink-api.onrender.com/api)
+        sync: false  # Set this manually to your API service URL (e.g., https://systemink-dev.onrender.com/api)
     autoDeploy: true

@@ -162,29 +162,38 @@ Since Shell access is paid, you can:
 
 ### Step 7: Deploy Frontend Web Service
 
-1. In Render Dashboard, click **"New +"** → **"Static Site"**
+1. In Render Dashboard, click **"New +"** → **"Web Service"**
 2. Connect your GitHub repository:
    - Select: `systemink.dev`
    - Click **"Connect"**
 3. Configure:
    - **Name**: `systemink-web`
+   - **Region**: Same as API (e.g., `Oregon`)
    - **Branch**: `main`
    - **Root Directory**: Leave empty
+   - **Environment**: `Node`
    - **Build Command**: 
      ```bash
      npm install -g pnpm@8.15.0 && pnpm install && pnpm --filter @systemink/shared build && pnpm --filter @systemink/web build
      ```
-   - **Publish Directory**: `apps/web/dist`
+   - **Start Command**: 
+     ```bash
+     cd apps/web && pnpm exec node server.js
+     ```
    - **Plan**: `Starter` (Free tier)
 
-4. **Environment Variables** - Click "Add Environment Variable":
+4. **Environment Variables** - Click "Advanced" → "Add Environment Variable":
    
    ```
-   VITE_API_URL = https://systemink-api.onrender.com/api
+   PORT = 5173
+   ```
+   
+   ```
+   VITE_API_URL = https://systemink-dev.onrender.com/api
    ```
    *Replace with your actual API URL from Step 3*
 
-5. Click **"Create Static Site"**
+5. Click **"Create Web Service"**
 6. **Wait for deployment** - This will take 3-5 minutes
 7. Once deployed, note your frontend URL: `https://systemink-web.onrender.com`
 

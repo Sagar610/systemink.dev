@@ -17,7 +17,7 @@ async function runMigrations() {
     // Try migrate deploy first (if migrations exist)
     try {
       execSync('npx prisma migrate deploy', {
-        stdio: 'pipe',
+        stdio: 'inherit',
         cwd: apiDir,
         env: process.env,
       });
@@ -77,6 +77,31 @@ async function bootstrap() {
   // Serve uploaded files
   const uploadDir = configService.get('UPLOAD_DIR', './uploads');
   app.use('/uploads', express.static(join(process.cwd(), uploadDir)));
+
+  // Root route handler (before API prefix)
+  app.get('/', (req, res) => {
+    res.json({
+      message: 'SystemInk API',
+      version: '1.0.0',
+      status: 'running',
+      endpoints: {
+        api: '/api',
+        health: '/api/health',
+        auth: '/api/auth',
+        posts: '/api/posts',
+        tags: '/api/tags',
+        users: '/api/users',
+        comments: '/api/posts/:postId/comments',
+        uploads: '/api/uploads',
+        feed: {
+          rss: '/api/rss.xml',
+          sitemap: '/api/sitemap.xml',
+          robots: '/api/robots.txt',
+        },
+      },
+      documentation: 'All API endpoints are prefixed with /api',
+    });
+  });
 
   // API prefix
   app.setGlobalPrefix('api');
