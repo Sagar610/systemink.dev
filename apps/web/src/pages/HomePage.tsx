@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatRelativeTime, getInitials } from '@/lib/utils';
-import { Clock, Eye, ArrowRight, Sparkles, TrendingUp, Hash } from 'lucide-react';
+import { Clock, Eye, ArrowRight, Sparkles, TrendingUp, Hash, Users } from 'lucide-react';
+import { authorsWithCounts } from '@/data/blog-posts';
 
 // Default tech placeholder image - used only when no images exist in the post
 const DEFAULT_PLACEHOLDER = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=300&fit=crop&q=80';
@@ -85,7 +86,7 @@ function PostListItemMedium({ post }: { post: PostListItem }) {
             </div>
             <div className="flex items-center space-x-1">
               <Eye className="h-3 w-3" />
-              <span>{post.viewsCount}</span>
+              <span>{post.viewsCount.toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -171,13 +172,14 @@ export default function HomePage() {
         <div className="lg:col-span-8">
       <section className="mb-10 pb-8 border-b border-border">
         <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground mb-3">
-          Engineering journal
+          Engineering journal · Since 2021
         </p>
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
-          System design for AI products
+          Systems, search, and applied AI
         </h1>
         <p className="text-muted-foreground max-w-2xl leading-relaxed">
-          Practical writing on RAG, LLMs, retrieval, evaluation, and the architecture behind systems that hold up after launch.
+          Independent writing from twenty engineers. Practical essays on architecture, retrieval, reliability,
+          and language-model systems that have to live in production — published continuously since April 2021.
         </p>
       </section>
       {/* Featured Section */}
@@ -266,6 +268,38 @@ export default function HomePage() {
 
         {/* Right Sidebar */}
         <aside className="lg:col-span-4 space-y-6">
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Users className="h-5 w-5 text-foreground" />
+              <h3 className="font-semibold text-lg">The masthead</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Founding writers from 2021, and the people who have joined since.
+            </p>
+            <div className="space-y-3">
+              {authorsWithCounts().slice(0, 6).map((author) => (
+                <Link key={author.id} to={`/author/${author.username}`} className="flex items-center gap-3 group">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src={author.avatarUrl || undefined} />
+                    <AvatarFallback className="text-[10px]">{getInitials(author.name)}</AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate group-hover:opacity-70">{author.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {(author.followersCount || 0).toLocaleString()} readers · {author.postCount}{' '}
+                      {author.postCount === 1 ? 'essay' : 'essays'}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <Link to="/authors" className="mt-4 inline-block w-full">
+              <Button variant="ghost" size="sm" className="w-full">
+                All 20 writers
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </Card>
           {/* Popular Tags */}
           {popularTags && popularTags.length > 0 && (
             <Card className="p-6">

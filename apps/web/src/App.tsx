@@ -9,6 +9,7 @@ import TagsPage from './pages/TagsPage';
 import AuthorPage from './pages/AuthorPage';
 import AuthorsPage from './pages/AuthorsPage';
 import SearchPage from './pages/SearchPage';
+import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -63,6 +64,7 @@ function App() {
         <Route path="/authors" element={<AuthorsPage />} />
         <Route path="/author/:username" element={<AuthorPage />} />
         <Route path="/search" element={<SearchPage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot" element={<ForgotPasswordPage />} />

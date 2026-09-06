@@ -180,7 +180,11 @@ export default function AuthorsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <h1 className="text-4xl font-bold mb-8">All Authors</h1>
+      <h1 className="text-4xl font-bold mb-3">Writers</h1>
+      <p className="text-muted-foreground mb-8 max-w-2xl">
+        Twenty contributing engineers. The journal opened in April 2021 with Priya Venkatesh and Marcus Chen.
+        New writers have joined each year since.
+      </p>
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 9 }).map((_, i) => (

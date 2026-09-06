@@ -204,6 +204,9 @@ export default function AuthorPage() {
                 <div>
                   <h1 className="text-3xl font-bold mb-1">{author.name}</h1>
                   <p className="text-muted-foreground mb-2">@{author.username}</p>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Writing here since {formatDate(author.createdAt)}
+                  </p>
                 </div>
                 {user && user.id !== author.id && (
                   <Button

@@ -73,10 +73,20 @@ export default function Layout() {
               <Link
                 to="/authors"
                 className={`text-sm font-medium transition-colors hover:text-foreground ${
-                  location.pathname.startsWith('/authors') ? 'text-foreground' : 'text-muted-foreground'
+                  location.pathname.startsWith('/authors') || location.pathname.startsWith('/author')
+                    ? 'text-foreground'
+                    : 'text-muted-foreground'
                 }`}
               >
-                Authors
+                Writers
+              </Link>
+              <Link
+                to="/about"
+                className={`text-sm font-medium transition-colors hover:text-foreground ${
+                  location.pathname === '/about' ? 'text-foreground' : 'text-muted-foreground'
+                }`}
+              >
+                About
               </Link>
             </div>
           </nav>
@@ -150,20 +160,29 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="border-t py-8 mt-auto flex-shrink-0">
+      <footer className="border-t py-10 mt-auto flex-shrink-0">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm text-muted-foreground">© 2024 SystemInk. All rights reserved.</p>
-            <div className="flex space-x-4 mt-4 md:mt-0">
-              <Link to="/tags" className="text-sm text-muted-foreground hover:text-foreground">
-                Tags
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <p className="font-semibold mb-1">SystemInk</p>
+              <p className="text-sm text-muted-foreground max-w-md">
+                Independent engineering journal. Published continuously since April 2021.
+              </p>
+              <p className="text-sm text-muted-foreground mt-3">© 2021–2026 SystemInk</p>
+            </div>
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
+              <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground">
+                About
+              </Link>
+              <Link to="/search" className="text-sm text-muted-foreground hover:text-foreground">
+                Archive
               </Link>
               <Link to="/authors" className="text-sm text-muted-foreground hover:text-foreground">
-                Authors
+                Writers
               </Link>
-              <a href="/api/rss.xml" className="text-sm text-muted-foreground hover:text-foreground">
-                RSS
-              </a>
+              <Link to="/tags" className="text-sm text-muted-foreground hover:text-foreground">
+                Topics
+              </Link>
             </div>
           </div>
         </div>

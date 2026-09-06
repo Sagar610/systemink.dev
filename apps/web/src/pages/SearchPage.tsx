@@ -127,7 +127,7 @@ export default function SearchPage() {
   };
 
   const heading =
-    sort === 'featured' ? 'Featured' : sort === 'trending' ? 'Trending' : query.trim() ? 'Search' : 'All stories';
+    sort === 'featured' ? 'Featured' : sort === 'trending' ? 'Trending' : query.trim() ? 'Search' : 'Archive';
 
   const resultLabel = query.trim()
     ? `Found ${data?.meta.total || 0} ${(data?.meta.total || 0) === 1 ? 'result' : 'results'} for "${query}"`

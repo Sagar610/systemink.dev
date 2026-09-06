@@ -42,7 +42,10 @@ export default function TagsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <h1 className="text-4xl font-bold mb-8">All Tags</h1>
+      <h1 className="text-4xl font-bold mb-3">Topics</h1>
+      <p className="text-muted-foreground mb-8">
+        Five years of essays, from caches and ownership through retrieval and language-model systems.
+      </p>
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {Array.from({ length: 12 }).map((_, i) => (

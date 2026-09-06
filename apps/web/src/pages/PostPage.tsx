@@ -183,7 +183,7 @@ export default function PostPage() {
                 </div>
                 <div className="flex items-center space-x-1">
                   <Eye className="h-4 w-4" />
-                  <span>{post.viewsCount} views</span>
+                  <span>{post.viewsCount.toLocaleString()} views</span>
                 </div>
               </div>
               {post.tags.length > 0 && (
@@ -250,7 +250,7 @@ export default function PostPage() {
               </CardContent>
             </Card>
 
-            {isLoggedIn && <CommentsSection postId={post.id} postAuthorId={post.author.id} />}
+            <CommentsSection postId={post.id} postAuthorId={post.author.id} />
 
             {related && related.length > 0 && (
               <section>

@@ -1,17 +1,17 @@
 import {
   PaginatedResponse,
   PostListItem,
-  PostPublic,
   TagPublic,
-  UserPublic,
 } from '@systemink/shared';
 import {
   AUTHOR,
   BLOG_LIST,
   BLOG_POSTS,
   FEATURED_SLUGS,
+  authorsWithCounts,
   tagsWithCounts,
 } from '@/data/blog-posts';
+import { commentsForPost } from '@/data/comments';
 
 function paginate<T>(items: T[], page: number, limit: number): PaginatedResponse<T> {
   const safePage = Number.isFinite(page) && page > 0 ? page : 1;
@@ -24,7 +24,7 @@ function paginate<T>(items: T[], page: number, limit: number): PaginatedResponse
       total: items.length,
       page: safePage,
       limit: safeLimit,
-      totalPages: Math.max(1, Math.ceil(items.length / safeLimit)),
+      totalPages: Math.max(1, Math.ceil(items.length / safeLimit) || 1),
     },
   };
 }
@@ -60,13 +60,6 @@ function matchesQuery(post: PostListItem, query: string): boolean {
     .every((term) => haystack.includes(term));
 }
 
-function emptyComments() {
-  return {
-    data: [],
-    meta: { total: 0, page: 1, limit: 20, totalPages: 0 },
-  };
-}
-
 export function resolveStatic(endpoint: string, method = 'GET'): unknown | undefined {
   const verb = method.toUpperCase();
   const { path, params } = parseUrl(endpoint);
@@ -77,12 +70,30 @@ export function resolveStatic(endpoint: string, method = 'GET'): unknown | undef
     return { counted: true };
   }
 
-  if (verb === 'GET' && /^\/posts\/[^/]+\/comments$/.test(path)) {
-    return emptyComments();
+  const follow = path.match(/^\/users\/([^/]+)\/follow$/);
+  if (verb === 'POST' && follow) {
+    const author = authorsWithCounts().find((item) => item.username === follow[1]);
+    if (!author) return undefined;
+    return {
+      following: true,
+      followersCount: (author.followersCount || 0) + 1,
+      message: `You're now following ${author.name}`,
+    };
   }
 
   if (verb !== 'GET') {
     return undefined;
+  }
+
+  const commentsMatch = path.match(/^\/posts\/([^/]+)\/comments$/);
+  if (commentsMatch) {
+    const comments = commentsForPost(commentsMatch[1]);
+    const total = comments.reduce((count, item) => count + 1 + (item.replies?.length || 0), 0);
+    const paged = paginate(comments, page, limit || 20);
+    return {
+      ...paged,
+      meta: { ...paged.meta, total, totalPages: Math.max(1, Math.ceil(comments.length / (limit || 20))) },
+    };
   }
 
   if (path === '/posts/featured') {
@@ -141,19 +152,15 @@ export function resolveStatic(endpoint: string, method = 'GET'): unknown | undef
   }
 
   if (path === '/users/authors') {
-    const author: UserPublic = { ...AUTHOR, postCount: BLOG_POSTS.length };
-    return paginate([author], page, limit || 20);
+    return paginate(authorsWithCounts(), page, limit || 20);
   }
 
   const userMatch = path.match(/^\/users\/([^/]+)$/);
   if (userMatch && userMatch[1] !== 'authors') {
-    if (userMatch[1] === AUTHOR.username) {
-      return { ...AUTHOR, postCount: BLOG_POSTS.length };
-    }
-    return undefined;
+    return authorsWithCounts().find((item) => item.username === userMatch[1]);
   }
 
   return undefined;
 }
 
-export type { PostListItem, PostPublic };
+export { AUTHOR };

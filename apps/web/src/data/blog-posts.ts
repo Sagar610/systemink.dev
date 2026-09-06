@@ -3,26 +3,16 @@ import {
   PostPublic,
   PostStatus,
   TagPublic,
-  UserPublic,
   calculateReadingTime,
 } from '@systemink/shared';
+import { AUTHORS, getAuthor } from './authors';
+import { ARCHIVE_POSTS } from './archive-posts';
+import type { PostDraft } from './post-types';
 
-export const AUTHOR: UserPublic = {
-  id: 'author-sagar-gondaliya',
-  name: 'Sagar Gondaliya',
-  username: 'sagargondaliya',
-  bio: 'Senior Software Engineer at Meta. I write about production AI systems, RAG, LLMs, and the architecture behind products that stay reliable after launch.',
-  avatarUrl: 'https://github.com/sagar-gondaliya.png',
-  links: {
-    GitHub: 'https://github.com/sagar-gondaliya',
-    LinkedIn: 'https://www.linkedin.com/in/sagar-gondaliya',
-    Website: 'https://sagargondaliya.vercel.app',
-  },
-  createdAt: '2024-03-12T09:00:00.000Z',
-  followersCount: 186,
-  followingCount: 24,
-  postCount: 9,
-};
+export type { PostDraft } from './post-types';
+export { AUTHORS, getAuthor, staffAuthors } from './authors';
+
+export const AUTHOR = getAuthor('sagargondaliya');
 
 const TAG_DEFS: Array<[string, string, string]> = [
   ['rag', 'RAG', 'rag'],
@@ -38,6 +28,11 @@ const TAG_DEFS: Array<[string, string, string]> = [
   ['cost', 'Cost Engineering', 'cost-engineering'],
   ['saas', 'SaaS', 'saas'],
   ['prompts', 'Prompt Engineering', 'prompt-engineering'],
+  ['reliability', 'Reliability', 'reliability'],
+  ['distributed-systems', 'Distributed Systems', 'distributed-systems'],
+  ['mlops', 'MLOps', 'mlops'],
+  ['privacy', 'Privacy', 'privacy'],
+  ['product', 'Product', 'product'],
 ];
 
 export const TAGS: TagPublic[] = TAG_DEFS.map(([id, name, slug]) => ({
@@ -54,20 +49,7 @@ const tag = (slug: string): TagPublic => {
   return found;
 };
 
-interface PostDraft {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  coverImageUrl: string;
-  publishedAt: string;
-  viewsCount: number;
-  featured: boolean;
-  tagSlugs: string[];
-  contentHtml: string;
-}
-
-const drafts: PostDraft[] = [
+const recentDrafts: PostDraft[] = [
   {
     id: 'post-rag-production',
     title: 'RAG in Production: Chunking, Retrieval, and Evaluation',
@@ -80,6 +62,7 @@ const drafts: PostDraft[] = [
     viewsCount: 4280,
     featured: true,
     tagSlugs: ['rag', 'retrieval', 'evaluation', 'llms'],
+    authorUsername: 'sagargondaliya',
     contentHtml: `
 <p>A retrieval-augmented generation demo is easy to ship. You embed a folder of documents, ask a question, and the model answers with a citation. That loop is useful for a prototype. It is not a production system.</p>
 <p>The first real users arrive with messy questions, overlapping documents, and no patience for confident wrong answers. At that point the model is no longer the bottleneck. The retrieval stack is.</p>
@@ -125,6 +108,7 @@ answer     = generate(query, context)</code></pre>
     viewsCount: 3910,
     featured: true,
     tagSlugs: ['llms', 'system-design', 'architecture', 'artificial-intelligence'],
+    authorUsername: 'sagargondaliya',
     contentHtml: `
 <p>Classical services fail loudly. A payment API returns 502. A cache miss is measurable. An LLM can fail while still producing a complete, well-formed paragraph. That is the design problem: the happy path and the failure path look the same at the HTTP layer.</p>
 <p>If you treat the model as a reliable function, you will ship a product that is confident at the worst possible moment.</p>
@@ -165,6 +149,7 @@ answer     = generate(query, context)</code></pre>
     viewsCount: 3640,
     featured: true,
     tagSlugs: ['rag', 'llms', 'agents', 'system-design'],
+    authorUsername: 'amaradiallo',
     contentHtml: `
 <p>Teams often ask which approach is "best": retrieval-augmented generation, fine-tuning, or agents. That question hides the real one. What job is the model being hired to do, and how often does the underlying knowledge change?</p>
 <h2 id="use-rag-for-facts">Use RAG when the facts move</h2>
@@ -199,6 +184,7 @@ answer     = generate(query, context)</code></pre>
     viewsCount: 2890,
     featured: false,
     tagSlugs: ['vector-search', 'retrieval', 'system-design', 'rag'],
+    authorUsername: 'elenavarga',
     contentHtml: `
 <p>Buying a vector database does not give you search quality. It gives you an ANN index. Quality comes from the pipeline around it: what you embed, how you version those embeddings, and how you query under a latency budget.</p>
 <h2 id="ingest-with-ids">Ingest with stable IDs</h2>
@@ -239,6 +225,7 @@ answer     = generate(query, context)</code></pre>
     viewsCount: 3120,
     featured: false,
     tagSlugs: ['cost-engineering', 'llms', 'system-design', 'architecture'],
+    authorUsername: 'owenbradley',
     contentHtml: `
 <p>The first month of an LLM feature often looks cheap. Traffic is low, prompts are short, and nobody is retrying. Then a launch, a long context, and a retry loop arrive together. The invoice and the p99 move on the same day.</p>
 <h2 id="know-the-unit-cost">Know the unit cost</h2>
@@ -271,6 +258,7 @@ answer     = generate(query, context)</code></pre>
     viewsCount: 2540,
     featured: false,
     tagSlugs: ['observability', 'llms', 'rag', 'system-design'],
+    authorUsername: 'naomifeldman',
     contentHtml: `
 <p>A 200 from the model provider means the bytes arrived. It does not mean the user got a useful, grounded answer. LLM products need a second kind of observability: traces of the reasoning path and a quality signal that can drop when the corpus or the prompt changes.</p>
 <h2 id="trace-the-path">Trace the whole path</h2>
@@ -303,6 +291,7 @@ answer     = generate(query, context)</code></pre>
     viewsCount: 1980,
     featured: false,
     tagSlugs: ['saas', 'architecture', 'system-design', 'artificial-intelligence'],
+    authorUsername: 'faridalhassan',
     contentHtml: `
 <p>Multi-tenancy is well understood for CRUD apps. AI products add new leak paths: embeddings, prompt caches, conversation memory, and batch jobs that re-embed an entire workspace. A single missed filter can surface another company's contract in a chat answer.</p>
 <h2 id="isolate-the-index">Isolate the index</h2>
@@ -335,6 +324,7 @@ answer     = generate(query, context)</code></pre>
     viewsCount: 2210,
     featured: false,
     tagSlugs: ['prompt-engineering', 'llms', 'architecture', 'evaluation'],
+    authorUsername: 'meilin',
     contentHtml: `
 <p>Early on, the prompt is a string in a file. That is fine. The problem starts when five people edit it in production because "the model sounded off today." You then have no version, no owner, and no way to prove the last change helped.</p>
 <h2 id="version-everything">Version the prompt like a module</h2>
@@ -366,6 +356,7 @@ answer     = generate(query, context)</code></pre>
     viewsCount: 3470,
     featured: true,
     tagSlugs: ['evaluation', 'rag', 'retrieval', 'llms'],
+    authorUsername: 'henriknilsen',
     contentHtml: `
 <p>The most common RAG evaluation is a hallway test. Someone asks three questions, likes the answers, and the team ships. Two weeks later support reports that a high-traffic question now cites the wrong policy. Nobody can say which change caused it.</p>
 <p>You do not need a research bench. You need a set of questions the product must not regress on.</p>
@@ -396,13 +387,21 @@ answer     = generate(query, context)</code></pre>
   },
 ];
 
+const drafts: PostDraft[] = [...ARCHIVE_POSTS, ...recentDrafts];
+
 function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+const postCountByAuthor = drafts.reduce<Record<string, number>>((counts, draft) => {
+  counts[draft.authorUsername] = (counts[draft.authorUsername] || 0) + 1;
+  return counts;
+}, {});
+
 function toPost(draft: PostDraft): PostPublic {
   const tags = draft.tagSlugs.map(tag);
   const publishedAt = draft.publishedAt;
+  const author = getAuthor(draft.authorUsername);
   return {
     id: draft.id,
     title: draft.title,
@@ -417,7 +416,10 @@ function toPost(draft: PostDraft): PostPublic {
     publishedAt,
     createdAt: publishedAt,
     updatedAt: publishedAt,
-    author: { ...AUTHOR, postCount: drafts.length },
+    author: {
+      ...author,
+      postCount: postCountByAuthor[draft.authorUsername] || 0,
+    },
     tags,
   };
 }
@@ -448,6 +450,13 @@ export const BLOG_POSTS: PostPublic[] = drafts
 export const BLOG_LIST: PostListItem[] = BLOG_POSTS.map(toListItem);
 
 export const FEATURED_SLUGS = drafts.filter((draft) => draft.featured).map((draft) => draft.slug);
+
+export function authorsWithCounts() {
+  return AUTHORS.map((author) => ({
+    ...author,
+    postCount: postCountByAuthor[author.username] || 0,
+  })).sort((a, b) => (b.followersCount || 0) - (a.followersCount || 0));
+}
 
 export function tagsWithCounts(): TagPublic[] {
   return TAGS.map((item) => ({
