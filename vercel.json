@@ -3,6 +3,6 @@
   "buildCommand": "npx pnpm@8.15.0 --filter @systemink/shared build && npx pnpm@8.15.0 --filter @systemink/web build",
   "outputDirectory": "apps/web/dist",
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/$1" }
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
