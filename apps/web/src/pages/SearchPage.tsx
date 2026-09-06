@@ -92,11 +92,32 @@ export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [page, setPage] = useState(parseInt(searchParams.get('page') || '1', 10));
+  const sort = searchParams.get('sort') || '';
 
   const { data, isLoading } = useQuery({
-    queryKey: ['search', query, page],
-    queryFn: () => api.get<PaginatedResponse<PostListItem>>(`/posts/search?q=${encodeURIComponent(query)}&page=${page}&limit=10`),
-    enabled: query.length > 0,
+    queryKey: ['search', query, page, sort],
+    queryFn: async () => {
+      if (query.trim()) {
+        return api.get<PaginatedResponse<PostListItem>>(
+          `/posts/search?q=${encodeURIComponent(query)}&page=${page}&limit=10`,
+        );
+      }
+      if (sort === 'featured') {
+        const items = await api.get<PostListItem[]>('/posts/featured?limit=20');
+        return {
+          data: items,
+          meta: { total: items.length, page: 1, limit: items.length, totalPages: 1 },
+        };
+      }
+      if (sort === 'trending') {
+        const items = await api.get<PostListItem[]>('/posts/trending?limit=20');
+        return {
+          data: items,
+          meta: { total: items.length, page: 1, limit: items.length, totalPages: 1 },
+        };
+      }
+      return api.get<PaginatedResponse<PostListItem>>(`/posts?page=${page}&limit=10`);
+    },
   });
 
   const handleSearch = (e: React.FormEvent) => {
@@ -105,9 +126,16 @@ export default function SearchPage() {
     setSearchParams({ q: query, page: '1' });
   };
 
+  const heading =
+    sort === 'featured' ? 'Featured' : sort === 'trending' ? 'Trending' : query.trim() ? 'Search' : 'All stories';
+
+  const resultLabel = query.trim()
+    ? `Found ${data?.meta.total || 0} ${(data?.meta.total || 0) === 1 ? 'result' : 'results'} for "${query}"`
+    : `${data?.meta.total || 0} ${(data?.meta.total || 0) === 1 ? 'story' : 'stories'}`;
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <h1 className="text-4xl font-bold mb-8">Search</h1>
+      <h1 className="text-4xl font-bold mb-8">{heading}</h1>
 
       <form onSubmit={handleSearch} className="mb-8">
         <div className="flex space-x-2">
@@ -127,42 +155,38 @@ export default function SearchPage() {
         </div>
       </form>
 
-      {query && (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <PostSkeleton key={i} />
+          ))}
+        </div>
+      ) : data && data.data.length > 0 ? (
         <>
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 9 }).map((_, i) => (
-                <PostSkeleton key={i} />
-              ))}
+          <p className="text-sm text-muted-foreground mb-6">{resultLabel}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {data.data.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+          {data.meta.totalPages > 1 && (
+            <div className="flex justify-center space-x-2">
+              <Button variant="outline" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
+                Previous
+              </Button>
+              <span className="flex items-center px-4 text-sm text-muted-foreground">
+                Page {page} of {data.meta.totalPages}
+              </span>
+              <Button variant="outline" onClick={() => setPage((p) => Math.min(data.meta.totalPages, p + 1))} disabled={page === data.meta.totalPages}>
+                Next
+              </Button>
             </div>
-          ) : data && data.data.length > 0 ? (
-            <>
-              <p className="text-sm text-muted-foreground mb-6">
-                Found {data.meta.total} {data.meta.total === 1 ? 'result' : 'results'} for "{query}"
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                {data.data.map((post) => (
-                  <PostCard key={post.id} post={post} />
-                ))}
-              </div>
-              {data.meta.totalPages > 1 && (
-                <div className="flex justify-center space-x-2">
-                  <Button variant="outline" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
-                    Previous
-                  </Button>
-                  <span className="flex items-center px-4 text-sm text-muted-foreground">
-                    Page {page} of {data.meta.totalPages}
-                  </span>
-                  <Button variant="outline" onClick={() => setPage((p) => Math.min(data.meta.totalPages, p + 1))} disabled={page === data.meta.totalPages}>
-                    Next
-                  </Button>
-                </div>
-              )}
-            </>
-          ) : (
-            <p className="text-muted-foreground">No results found for "{query}".</p>
           )}
         </>
+      ) : (
+        <p className="text-muted-foreground">
+          {query.trim() ? `No results found for "${query}".` : 'No posts found.'}
+        </p>
       )}
     </div>
   );

@@ -169,6 +169,17 @@ export default function HomePage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Main Content - Center */}
         <div className="lg:col-span-8">
+      <section className="mb-10 pb-8 border-b border-border">
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground mb-3">
+          Engineering journal
+        </p>
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
+          System design for AI products
+        </h1>
+        <p className="text-muted-foreground max-w-2xl leading-relaxed">
+          Practical writing on RAG, LLMs, retrieval, evaluation, and the architecture behind systems that hold up after launch.
+        </p>
+      </section>
       {/* Featured Section */}
       {featured && featured.length > 0 && (
         <section className="mb-12">

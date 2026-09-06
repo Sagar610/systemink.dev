@@ -4,12 +4,11 @@ import { useEffect, useRef } from 'react';
 import { api } from '@/lib/api';
 import { PostPublic, PostListItem } from '@systemink/shared';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDate, getInitials } from '@/lib/utils';
-import { Clock, Eye, Calendar, Lock, LogIn } from 'lucide-react';
+import { Clock, Eye, Calendar } from 'lucide-react';
 import ReadingProgressBar from '@/components/ReadingProgressBar';
 import TableOfContents from '@/components/TableOfContents';
 import CommentsSection from '@/components/CommentsSection';
@@ -80,16 +79,17 @@ export default function PostPage() {
   const { data: related } = useQuery({
     queryKey: ['post', slug, 'related'],
     queryFn: () => api.get<PostListItem[]>(`/posts/slug/${slug}/related?limit=4`),
-    enabled: !!slug && !!post && isLoggedIn, // Only fetch related if user is logged in
+    enabled: !!slug && !!post,
   });
 
   useEffect(() => {
-    if (!post || !isLoggedIn) return;
+    if (!post) return;
 
-    // Track view only if logged in
-    api.post(`/posts/${post.id}/view`).catch(() => {
-      // Ignore errors
-    });
+    if (isLoggedIn) {
+      api.post(`/posts/${post.id}/view`).catch(() => {
+        // Ignore errors
+      });
+    }
 
     // Add copy buttons to code blocks
     const codeBlocks = contentRef.current?.querySelectorAll('pre code');
@@ -138,24 +138,21 @@ export default function PostPage() {
 
   return (
     <>
-      {isLoggedIn && <ReadingProgressBar />}
+      <ReadingProgressBar />
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="flex gap-8 items-start">
-          {/* Table of Contents - Desktop Left Side (only show when logged in) */}
-          {isLoggedIn && (
-            <aside 
-              className="hidden lg:block w-64 flex-shrink-0"
-              style={{ 
-                position: 'sticky',
-                top: '6rem',
-                alignSelf: 'flex-start',
-                height: 'fit-content',
-                maxHeight: 'calc(100vh - 8rem)'
-              }}
-            >
-              <TableOfContents html={post.contentHtml} />
-            </aside>
-          )}
+          <aside
+            className="hidden lg:block w-64 flex-shrink-0"
+            style={{
+              position: 'sticky',
+              top: '6rem',
+              alignSelf: 'flex-start',
+              height: 'fit-content',
+              maxHeight: 'calc(100vh - 8rem)',
+            }}
+          >
+            <TableOfContents html={post.contentHtml} />
+          </aside>
 
           {/* Main Content */}
           <article className="flex-1 max-w-4xl">
@@ -212,96 +209,58 @@ export default function PostPage() {
               />
             )}
 
-            {/* Login Prompt or Content */}
-            {!isLoggedIn ? (
-              <Card className="mb-12 border-border bg-muted">
-                <CardContent className="p-8 text-center">
-                  <div className="max-w-md mx-auto">
-                    <div className="mb-6 flex justify-center">
-                      <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center border border-border">
-                        <Lock className="h-8 w-8 text-foreground" />
-                      </div>
-                    </div>
-                    <h2 className="text-2xl font-bold mb-3">Login to read this post</h2>
-                    <p className="text-muted-foreground mb-6">
-                      Join our community to access full blog posts, leave comments, and engage with other readers.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                      <Link to="/login">
-                        <Button size="lg" className="w-full sm:w-auto gap-2">
-                          <LogIn className="h-4 w-4" />
-                          Login
-                        </Button>
-                      </Link>
-                      <Link to="/signup">
-                        <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                          Sign Up
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <>
-                {/* Content - Only shown when logged in */}
-                <div
-                  ref={contentRef}
-                  data-post-content
-                  className="prose prose-lg dark:prose-invert max-w-none mb-12"
-                  dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-                />
+            <div
+              ref={contentRef}
+              data-post-content
+              className="prose prose-lg dark:prose-invert max-w-none mb-12"
+              dangerouslySetInnerHTML={{ __html: post.contentHtml }}
+            />
 
-                {/* Author Info */}
-                <Card className="mb-12">
-                  <CardContent className="p-6">
-                    <div className="flex items-start space-x-4">
-                      <Avatar className="h-16 w-16">
-                        <AvatarImage src={post.author.avatarUrl || undefined} />
-                        <AvatarFallback className="text-sm font-medium">{getInitials(post.author.name)}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <Link to={`/author/${post.author.username}`}>
-                          <h3 className="text-xl font-semibold mb-1 hover:opacity-70 transition-opacity">
-                            {post.author.name}
-                          </h3>
-                        </Link>
-                        {post.author.bio && (
-                          <p className="text-muted-foreground mb-3">{post.author.bio}</p>
-                        )}
-                        <div className="flex space-x-3">
-                          {Object.entries(post.author.links || {}).map(([key, url]) => (
-                            <a
-                              key={key}
-                              href={url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm text-foreground hover:underline"
-                            >
-                              {key}
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Comments Section - Only shown when logged in */}
-                <CommentsSection postId={post.id} postAuthorId={post.author.id} />
-
-                {/* Related Posts */}
-                {related && related.length > 0 && (
-                  <section>
-                    <h2 className="text-2xl font-bold mb-6">Related Posts</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {related.map((relatedPost) => (
-                        <RelatedPostCard key={relatedPost.id} post={relatedPost} />
+            <Card className="mb-12">
+              <CardContent className="p-6">
+                <div className="flex items-start space-x-4">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage src={post.author.avatarUrl || undefined} />
+                    <AvatarFallback className="text-sm font-medium">{getInitials(post.author.name)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <Link to={`/author/${post.author.username}`}>
+                      <h3 className="text-xl font-semibold mb-1 hover:opacity-70 transition-opacity">
+                        {post.author.name}
+                      </h3>
+                    </Link>
+                    {post.author.bio && (
+                      <p className="text-muted-foreground mb-3">{post.author.bio}</p>
+                    )}
+                    <div className="flex space-x-3">
+                      {Object.entries(post.author.links || {}).map(([key, url]) => (
+                        <a
+                          key={key}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-foreground hover:underline"
+                        >
+                          {key}
+                        </a>
                       ))}
                     </div>
-                  </section>
-                )}
-              </>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {isLoggedIn && <CommentsSection postId={post.id} postAuthorId={post.author.id} />}
+
+            {related && related.length > 0 && (
+              <section>
+                <h2 className="text-2xl font-bold mb-6">Related Posts</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {related.map((relatedPost) => (
+                    <RelatedPostCard key={relatedPost.id} post={relatedPost} />
+                  ))}
+                </div>
+              </section>
             )}
           </article>
         </div>

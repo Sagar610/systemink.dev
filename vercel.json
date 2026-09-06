@@ -1,27 +1,8 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "apps/web/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "apps/web/dist"
-      }
-    },
-    {
-      "src": "apps/api/src/main.ts",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "apps/api/src/main.ts"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "apps/web/dist/$1"
-    }
-  ],
-  "outputDirectory": "apps/web/dist"
+  "installCommand": "NODE_ENV=development npx pnpm@8.15.1 install --frozen-lockfile=false",
+  "buildCommand": "npx pnpm@8.15.0 --filter @systemink/shared build && npx pnpm@8.15.0 --filter @systemink/web build",
+  "outputDirectory": "apps/web/dist",
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/$1" }
+  ]
 }

@@ -1,3 +1,5 @@
+import { resolveStatic } from '@/lib/static-blog';
+
 // Use environment variable if available (for production), otherwise use relative path (for same-domain)
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -31,11 +33,22 @@ async function request<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-    credentials: 'include',
-  });
+  const method = (options.method || 'GET').toUpperCase();
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers,
+      credentials: 'include',
+    });
+  } catch (error) {
+    const fallback = resolveStatic(endpoint, method);
+    if (fallback !== undefined) {
+      return fallback as T;
+    }
+    throw error;
+  }
 
   // Try to refresh token if 401
   if (response.status === 401 && refreshToken && endpoint !== '/auth/refresh') {
@@ -79,6 +92,10 @@ async function request<T>(
   }
 
   if (!response.ok) {
+    const fallback = resolveStatic(endpoint, method);
+    if (fallback !== undefined) {
+      return fallback as T;
+    }
     const error = await response.json().catch(() => ({}));
     throw new ApiError(response.status, error.message || 'Request failed', error);
   }

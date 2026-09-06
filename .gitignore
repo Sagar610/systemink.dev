@@ -51,3 +51,4 @@ apps/api/uploads/
 .turbo
 .next
 .vercel
+.env*
