@@ -8,6 +8,7 @@ import {
 import { AUTHORS, getAuthor } from './authors';
 import { ARCHIVE_POSTS } from './archive-posts';
 import { SAGAR_POSTS } from './sagar-posts';
+import { computeAuthorSocial, coverForSlug } from './media';
 import type { PostDraft } from './post-types';
 
 export type { PostDraft } from './post-types';
@@ -312,17 +313,32 @@ const postCountByAuthor = drafts.reduce<Record<string, number>>((counts, draft) 
   return counts;
 }, {});
 
+const viewsByAuthor = drafts.reduce<Record<string, number>>((counts, draft) => {
+  counts[draft.authorUsername] = (counts[draft.authorUsername] || 0) + draft.viewsCount;
+  return counts;
+}, {});
+
+function authorForDraft(username: string) {
+  const author = getAuthor(username);
+  const posts = postCountByAuthor[username] || 0;
+  const views = viewsByAuthor[username] || 0;
+  return {
+    ...author,
+    postCount: posts,
+    ...computeAuthorSocial(views, posts, author.createdAt),
+  };
+}
+
 function toPost(draft: PostDraft): PostPublic {
   const tags = draft.tagSlugs.map(tag);
   const publishedAt = draft.publishedAt;
-  const author = getAuthor(draft.authorUsername);
   return {
     id: draft.id,
     title: draft.title,
     slug: draft.slug,
     excerpt: draft.excerpt,
     contentHtml: draft.contentHtml.trim(),
-    coverImageUrl: draft.coverImageUrl,
+    coverImageUrl: coverForSlug(draft.slug),
     readingTime: calculateReadingTime(stripHtml(draft.contentHtml)),
     viewsCount: draft.viewsCount,
     status: PostStatus.PUBLISHED,
@@ -330,10 +346,7 @@ function toPost(draft: PostDraft): PostPublic {
     publishedAt,
     createdAt: publishedAt,
     updatedAt: publishedAt,
-    author: {
-      ...author,
-      postCount: postCountByAuthor[draft.authorUsername] || 0,
-    },
+    author: authorForDraft(draft.authorUsername),
     tags,
   };
 }
@@ -366,10 +379,9 @@ export const BLOG_LIST: PostListItem[] = BLOG_POSTS.map(toListItem);
 export const FEATURED_SLUGS = drafts.filter((draft) => draft.featured).map((draft) => draft.slug);
 
 export function authorsWithCounts() {
-  return AUTHORS.map((author) => ({
-    ...author,
-    postCount: postCountByAuthor[author.username] || 0,
-  })).sort((a, b) => (b.followersCount || 0) - (a.followersCount || 0));
+  return AUTHORS.map((author) => authorForDraft(author.username)).sort(
+    (a, b) => (b.followersCount || 0) - (a.followersCount || 0),
+  );
 }
 
 export function tagsWithCounts(): TagPublic[] {

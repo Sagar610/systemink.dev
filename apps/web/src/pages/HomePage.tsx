@@ -12,7 +12,7 @@ import { Clock, Eye, ArrowRight, Sparkles, TrendingUp, Hash, Users } from 'lucid
 import { authorsWithCounts } from '@/data/blog-posts';
 
 // Default tech placeholder image - used only when no images exist in the post
-const DEFAULT_PLACEHOLDER = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=300&fit=crop&q=80';
+const DEFAULT_PLACEHOLDER = 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop&q=80';
 
 // Get the best available image for a post
 // Priority: 1. Cover image uploaded by writer

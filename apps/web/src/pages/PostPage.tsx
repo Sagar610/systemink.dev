@@ -206,6 +206,10 @@ export default function PostPage() {
                 alt={post.title}
                 className="w-full h-64 md:h-96 object-cover rounded-lg mb-8"
                 loading="lazy"
+                onError={(event) => {
+                  const target = event.target as HTMLImageElement;
+                  target.src = 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1600&h=900&fit=crop&q=80';
+                }}
               />
             )}
 
