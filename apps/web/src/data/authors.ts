@@ -77,7 +77,7 @@ export const AUTHORS: AuthorRecord[] = [
       Website: 'https://sagargondaliya.vercel.app',
     },
     createdAt: '2022-03-12T09:00:00.000Z',
-    followersCount: 2146,
+    followersCount: 4380,
     followingCount: 64,
     roleLabel: 'Contributing editor',
   },

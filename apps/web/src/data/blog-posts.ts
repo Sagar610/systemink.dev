@@ -7,6 +7,7 @@ import {
 } from '@systemink/shared';
 import { AUTHORS, getAuthor } from './authors';
 import { ARCHIVE_POSTS } from './archive-posts';
+import { SAGAR_POSTS } from './sagar-posts';
 import type { PostDraft } from './post-types';
 
 export type { PostDraft } from './post-types';
@@ -51,93 +52,6 @@ const tag = (slug: string): TagPublic => {
 
 const recentDrafts: PostDraft[] = [
   {
-    id: 'post-rag-production',
-    title: 'RAG in Production: Chunking, Retrieval, and Evaluation',
-    slug: 'rag-in-production-chunking-retrieval-evaluation',
-    excerpt:
-      'Most RAG demos fail the first week they meet real users. The gap is rarely the model. It is how you chunk, retrieve, and measure quality on your own questions.',
-    coverImageUrl:
-      'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1600&h=900&fit=crop&q=80',
-    publishedAt: '2026-08-28T08:00:00.000Z',
-    viewsCount: 4280,
-    featured: true,
-    tagSlugs: ['rag', 'retrieval', 'evaluation', 'llms'],
-    authorUsername: 'sagargondaliya',
-    contentHtml: `
-<p>A retrieval-augmented generation demo is easy to ship. You embed a folder of documents, ask a question, and the model answers with a citation. That loop is useful for a prototype. It is not a production system.</p>
-<p>The first real users arrive with messy questions, overlapping documents, and no patience for confident wrong answers. At that point the model is no longer the bottleneck. The retrieval stack is.</p>
-<h2 id="chunking-is-a-product-decision">Chunking is a product decision</h2>
-<p>Chunk size looks like a preprocessing detail. In practice it decides what the model is allowed to see. Large chunks preserve context and dilute the match. Small chunks retrieve cleanly and lose the surrounding constraint that made the sentence true.</p>
-<p>I treat chunking as a product decision, not a default in a library:</p>
-<ul>
-<li>Split on document structure first: headings, sections, tables, and API blocks.</li>
-<li>Keep identifiers with the claim they describe. A policy ID without the rule is noise.</li>
-<li>Store metadata that retrieval can filter: product, region, version, and last updated date.</li>
-<li>Re-chunk when the corpus changes shape. A one-time splitter ages badly.</li>
-</ul>
-<p>If two teams share one index and different document types, they should not share one chunking policy.</p>
-<h2 id="retrieval-is-more-than-top-k">Retrieval is more than top-k</h2>
-<p>Vector search is a recall tool. It is not a ranking system. Hybrid search (lexical + dense) usually beats either method alone on internal docs, tickets, and policies. A reranker on the top 20 to 50 hits is often the cheapest quality win you can buy.</p>
-<pre><code>candidates = hybrid_search(query, k=40)
-reranked   = cross_encoder(query, candidates, k=6)
-context    = pack(reranked, token_budget=3500)
-answer     = generate(query, context)</code></pre>
-<p>Two more controls matter in production. Query rewriting helps short or ambiguous prompts. Filters stop the model from answering from last year's policy or the wrong tenant.</p>
-<h2 id="ground-or-refuse">Ground the answer or refuse</h2>
-<p>Users forgive a clear "I do not have this in the source set." They do not forgive a fluent answer that invents a number. Require citations that map to retrieved chunks. If no chunk clears a score threshold, refuse. That is not a weaker product. It is a safer one.</p>
-<h2 id="evaluate-on-your-questions">Evaluate on your own questions</h2>
-<p>Public RAG leaderboards measure someone else's corpus. Build a small golden set from real tickets and support chats. Score retrieval (did the right passage appear?) separately from generation (did the answer stay faithful?). A pretty answer with the wrong source is a retrieval failure, not a prompt failure.</p>
-<h2 id="takeaways">Takeaways</h2>
-<ul>
-<li>Chunk for how people ask, not for how the file was stored.</li>
-<li>Use hybrid search and a reranker before you fine-tune anything.</li>
-<li>Refuse when evidence is weak. Silence is better than a clean hallucination.</li>
-<li>Keep an evaluation set you can rerun after every index or prompt change.</li>
-</ul>
-`,
-  },
-  {
-    id: 'post-llm-fail-safe',
-    title: 'Designing LLM Systems That Fail Safely',
-    slug: 'designing-llm-systems-that-fail-safely',
-    excerpt:
-      'Language models fail in ways that look successful. Production systems need timeouts, fallbacks, and a clear contract for what happens when the model is wrong.',
-    coverImageUrl:
-      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1600&h=900&fit=crop&q=80',
-    publishedAt: '2026-08-18T08:00:00.000Z',
-    viewsCount: 3910,
-    featured: true,
-    tagSlugs: ['llms', 'system-design', 'architecture', 'artificial-intelligence'],
-    authorUsername: 'sagargondaliya',
-    contentHtml: `
-<p>Classical services fail loudly. A payment API returns 502. A cache miss is measurable. An LLM can fail while still producing a complete, well-formed paragraph. That is the design problem: the happy path and the failure path look the same at the HTTP layer.</p>
-<p>If you treat the model as a reliable function, you will ship a product that is confident at the worst possible moment.</p>
-<h2 id="define-the-contract">Define the contract before the prompt</h2>
-<p>Write down what the system is allowed to do. A summarizer may compress. It may not invent a figure. A support assistant may quote policy. It may not offer a refund. A coding helper may propose a patch. It may not apply it without a review step.</p>
-<p>Those rules belong in product and policy, then in the orchestration layer, not only in a system prompt that a user can talk around.</p>
-<h2 id="timeouts-and-budgets">Timeouts, retries, and budgets</h2>
-<p>Model latency has a long tail. A p95 of 1.8 seconds and a p99 of 12 seconds is a common shape. Set a deadline. Retry only on transport failures, not on low-quality text. Cap tokens per request and per user. A single runaway conversation should not drain the monthly budget.</p>
-<p>Retries that resend the same prompt after a slow success will double cost and confuse logs. Deduplicate with a request id.</p>
-<h2 id="fallback-paths">Design the fallback path</h2>
-<p>When the model is down, slow, or ungrounded, the product still has to do something:</p>
-<ul>
-<li>Return a structured "cannot complete" state the UI can render.</li>
-<li>Fall back to a smaller model or a deterministic template.</li>
-<li>Hand the user a search result or a human queue, not an empty spinner.</li>
-</ul>
-<p>A fallback that is slightly worse and always available beats a premium model that vanishes under load.</p>
-<h2 id="never-trust-raw-text">Never trust raw model text as a side effect</h2>
-<p>If the model output can trigger a tool, a refund, or a database write, parse it into a schema first. Reject unknown fields. Keep a human or policy check on irreversible actions. Tool use without validation is remote code execution with extra steps.</p>
-<h2 id="takeaways">Takeaways</h2>
-<ul>
-<li>Model errors are often silent. Measure faithfulness, not only HTTP success.</li>
-<li>Give every call a deadline, a token budget, and a request id.</li>
-<li>Ship a fallback that keeps the product usable.</li>
-<li>Schema-validate anything that can change state.</li>
-</ul>
-`,
-  },
-  {
     id: 'post-rag-vs-ft',
     title: 'RAG vs Fine-Tuning vs Agents: Choosing the Right Pattern',
     slug: 'rag-vs-fine-tuning-vs-agents',
@@ -145,8 +59,8 @@ answer     = generate(query, context)</code></pre>
       'These three patterns solve different problems. Mixing them without a clear job for each one is how AI roadmaps stall and costs rise.',
     coverImageUrl:
       'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1600&h=900&fit=crop&q=80',
-    publishedAt: '2026-08-06T08:00:00.000Z',
-    viewsCount: 3640,
+    publishedAt: '2023-10-20T08:00:00.000Z',
+    viewsCount: 27640,
     featured: true,
     tagSlugs: ['rag', 'llms', 'agents', 'system-design'],
     authorUsername: 'amaradiallo',
@@ -180,8 +94,8 @@ answer     = generate(query, context)</code></pre>
       'Vector search looks like a database feature. In a product it is a pipeline: ingest, embed, index, query, and rebuild without surprising users.',
     coverImageUrl:
       'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1600&h=900&fit=crop&q=80',
-    publishedAt: '2026-07-24T08:00:00.000Z',
-    viewsCount: 2890,
+    publishedAt: '2022-07-24T08:00:00.000Z',
+    viewsCount: 24110,
     featured: false,
     tagSlugs: ['vector-search', 'retrieval', 'system-design', 'rag'],
     authorUsername: 'elenavarga',
@@ -221,8 +135,8 @@ answer     = generate(query, context)</code></pre>
       'Token bills and tail latency will surprise you in the same week. The fix is queues, caches, model routing, and a budget that product can see.',
     coverImageUrl:
       'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1600&h=900&fit=crop&q=80',
-    publishedAt: '2026-07-12T08:00:00.000Z',
-    viewsCount: 3120,
+    publishedAt: '2023-07-12T08:00:00.000Z',
+    viewsCount: 19840,
     featured: false,
     tagSlugs: ['cost-engineering', 'llms', 'system-design', 'architecture'],
     authorUsername: 'owenbradley',
@@ -254,8 +168,8 @@ answer     = generate(query, context)</code></pre>
       'Request logs are not enough. You need traces across retrieval and generation, plus quality scores that tell you when the system drifted.',
     coverImageUrl:
       'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1600&h=900&fit=crop&q=80',
-    publishedAt: '2026-06-29T08:00:00.000Z',
-    viewsCount: 2540,
+    publishedAt: '2022-06-29T08:00:00.000Z',
+    viewsCount: 22180,
     featured: false,
     tagSlugs: ['observability', 'llms', 'rag', 'system-design'],
     authorUsername: 'naomifeldman',
@@ -287,8 +201,8 @@ answer     = generate(query, context)</code></pre>
       'The hard part of an AI SaaS is not the model. It is making sure one customer never sees another customer’s context, cache, or bill.',
     coverImageUrl:
       'https://images.unsplash.com/photo-1486406149926-2bfaafb2c5cd?w=1600&h=900&fit=crop&q=80',
-    publishedAt: '2026-06-16T08:00:00.000Z',
-    viewsCount: 1980,
+    publishedAt: '2024-09-02T08:00:00.000Z',
+    viewsCount: 8640,
     featured: false,
     tagSlugs: ['saas', 'architecture', 'system-design', 'artificial-intelligence'],
     authorUsername: 'faridalhassan',
@@ -320,8 +234,8 @@ answer     = generate(query, context)</code></pre>
       'If the prompt lives in a chat window, you cannot roll it back. Treat prompts like code: version them, test them, and ship them through the same pipeline.',
     coverImageUrl:
       'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1600&h=900&fit=crop&q=80',
-    publishedAt: '2026-06-03T08:00:00.000Z',
-    viewsCount: 2210,
+    publishedAt: '2024-06-10T08:00:00.000Z',
+    viewsCount: 9120,
     featured: false,
     tagSlugs: ['prompt-engineering', 'llms', 'architecture', 'evaluation'],
     authorUsername: 'meilin',
@@ -352,8 +266,8 @@ answer     = generate(query, context)</code></pre>
       'Anecdotes and chat playgrounds hide regressions. A small, honest evaluation set will tell you if retrieval or generation actually got better.',
     coverImageUrl:
       'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=1600&h=900&fit=crop&q=80',
-    publishedAt: '2026-05-20T08:00:00.000Z',
-    viewsCount: 3470,
+    publishedAt: '2023-07-20T08:00:00.000Z',
+    viewsCount: 18450,
     featured: true,
     tagSlugs: ['evaluation', 'rag', 'retrieval', 'llms'],
     authorUsername: 'henriknilsen',
@@ -387,7 +301,7 @@ answer     = generate(query, context)</code></pre>
   },
 ];
 
-const drafts: PostDraft[] = [...ARCHIVE_POSTS, ...recentDrafts];
+const drafts: PostDraft[] = [...ARCHIVE_POSTS, ...SAGAR_POSTS, ...recentDrafts];
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
